@@ -1,0 +1,11 @@
+AzureStorageCapacity
+| where ResourceId contains "/providers/Microsoft.Storage/storageAccounts/"
+| where ResourceId contains "<StorageAccountName>"
+| summarize TotalAllocatedSize = sum(TotalCapacity) by StorageType
+| join (
+    AzureStorageUsage
+    | where ResourceId contains "/providers/Microsoft.Storage/storageAccounts/"
+    | where ResourceId contains "<StorageAccountName>"
+    | summarize CurrentUsage = sum(CurrentValue) by StorageType
+) on StorageType
+| project StorageType, TotalAllocatedSize, CurrentUsage
