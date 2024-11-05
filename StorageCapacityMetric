@@ -1,0 +1,9 @@
+let storageAccountName = "<YourStorageAccountName>"; // Replace with your storage account name
+AzureMetrics
+| where ResourceId contains storageAccountName
+| where MetricName in ("UsedCapacity", "TotalCapacity") // Adjust metric names as needed
+| summarize TotalCapacity = sumif(Total, MetricName == "TotalCapacity"), 
+            UsedCapacity = sumif(Total, MetricName == "UsedCapacity") 
+            by ResourceId, Resource, TimeGenerated
+| project ResourceId, Resource, TotalCapacity, UsedCapacity, UsagePercentage = UsedCapacity * 100 / TotalCapacity
+| order by TimeGenerated desc
